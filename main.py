@@ -1,47 +1,109 @@
 
 from fastapi import FastAPI
+from pydantic import BaseModel
+from typing import TypeVar, Generic, Optional, List
 
 app = FastAPI()
 
 
-student_data = {
-    "1234":  {"student_roll_no": "1234",
-              "student_name": "raja",
-              "student_class": "s3",
-              "student_contact": "1234567898",
-              },
-    "4321":  {"student_roll_no": "4321",
-              "student_name": "sumit",
-              "student_class": "s2",
-              "student_contact": "0987654321",
-              }
-}
+"""
+Implement CRUD
+"""
+T = TypeVar("T")    # This line defines a type variable named T. It’s a placeholder type you can use inside generic classes.
+
+class StudentData(BaseModel):
+    student_roll: int
+    student_name : str
+    student_class : str
+    student_contact: int
+    student_address: str
+
+class ApiResponseModel(BaseModel, Generic[T]):
+    message: str
+    data: Optional[T] = None  # optional means this field can be None
+    status: bool
+
+# This means: “students is a list that holds StudentData objects.”
+students: List[StudentData] = [] # list of objects (dictionaries)
+
+
+# helper
+def check_if_roll_no_exists(roll_no: int):
+    for i, student in enumerate(students):
+        if student.student_roll == roll_no:
+            return True,i
+        else:
+            continue
+    return False, None
+
+
 
 @app.get("/")
 def index():
-    return "Hello World"
+    return "hello world"
 
 # CREATE
-@app.get("/create-student")
-def create_student():
-    return "student created"
+@app.post("/students", response_model=ApiResponseModel[List[StudentData]])
+def create_student(student_data: StudentData):
+    try:
+        exists, i = check_if_roll_no_exists(student_data.student_roll)
+        if not exists:
+            students.append(student_data)
+            return ApiResponseModel(message="created successfully", data=[student_data], status=True)
+        else:
+            return ApiResponseModel(message="record already exists", data=None, status=False)
+    except Exception as error:
+        return ApiResponseModel(message=str(error), data=None, status=False)
 
-# READ
-@app.get("/fetch-students")
+
+@app.get("/students", response_model=ApiResponseModel[List[StudentData]])
 def fetch_students():
-    return student_data
+    try:
+        if len(students) <= 0:
+            return ApiResponseModel(message="data not found", data=[], status=False)
+        else:
+            return ApiResponseModel(message="data found", data=students, status=True)
+    except Exception as error:
+        return ApiResponseModel(message=str(error), data=None, status=False)
 
-@app.get("/fetch-student-by-roll-no/{rn}")
-def fetch_student_by_roll_no(rn):
-    print(rn)
-    return student_data[rn]
 
-# UPDATE
-@app.put("/update-student")
-def update_student():
-    return "student updated"
+@app.get("/students/{rid}", response_model=ApiResponseModel[List[StudentData]])
+def fetch_student_by_roll_no(rid: int):
+    try:
+        exists, i = check_if_roll_no_exists(rid)
+        if not exists:
+            return ApiResponseModel(message="data not found", data=None, status=False)
+        else:
+            return ApiResponseModel(message="data found", data=[students[i]], status=True)
+    except Exception as error:
+        return ApiResponseModel(message=str(error), data=None, status=False)
 
-# DELETE
-@app.delete("/delete-student")
-def delete_student():
-    return "student deleted"
+
+@app.put("/students/{rid}", response_model=ApiResponseModel[List[StudentData]])
+def update_student(rid:int, student_data: StudentData):
+    try:
+        exists, i = check_if_roll_no_exists(rid)
+        if not exists:
+            return ApiResponseModel(message="data not found", data=None, status=False)
+        else:
+            if rid == student_data.student_roll:
+                students[i] = student_data
+                return ApiResponseModel(message="data updated", data=[students[i]], status=True)
+            else:
+                return ApiResponseModel(message="record already exists", data=None, status=False)
+
+    except Exception as error:
+        return ApiResponseModel(message=str(error), data=None, status=False)
+
+
+@app.delete("/students/{rid}", response_model=ApiResponseModel[List[StudentData]])
+def delete_student(rid:int):
+    try:
+        exists, i = check_if_roll_no_exists(rid)
+        if not exists:
+            return ApiResponseModel(message="data not found", data=None, status=False)
+        else:
+            deleted_student = students.pop(i)
+            return ApiResponseModel(message="data deleted", data=[deleted_student], status=True)
+    except Exception as error:
+        return ApiResponseModel(message=str(error), data=None, status=False)
