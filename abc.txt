@@ -1,5 +1,7 @@
 these are new changes
 
+<-----students data----->
+
 {
   "student_roll": 0,
   "student_name": "abc",
@@ -22,4 +24,46 @@ these are new changes
   "student_class": "3",
   "student_contact": 3,
   "student_address": "zzz"
+}
+
+<-----subjects data----->
+
+{
+  "subject_name": "math I",
+  "subject_id": 10,
+  "subject_status": true,
+  "subject_description": "basic maths",
+  "min_passing_marks": 60
+}
+
+{
+  "subject_name": "math II",
+  "subject_id": 11,
+  "subject_status": true,
+  "subject_description": "high level maths",
+  "min_passing_marks": 50
+}
+
+{
+  "subject_name": "physics I",
+  "subject_id": 12,
+  "subject_status": true,
+  "subject_description": "basic physics",
+  "min_passing_marks": 50
+}
+
+{
+  "subject_name": "physics II",
+  "subject_id": 13,
+  "subject_status": true,
+  "subject_description": "high level physics",
+  "min_passing_marks": 45
+}
+
+<-----marks data----->
+
+{
+  "student_roll": 1,
+  "subject_id": 11,
+  "marks_obtained": 78
 }
