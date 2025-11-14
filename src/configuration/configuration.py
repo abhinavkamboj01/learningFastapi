@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_ignore_empty=True, extra="ignore")
 
     APPLICATION_HOST:str = "0.0.0.0"
-    APPLICATION_PORT:int = 8000
+    APPLICATION_PORT:int = 8001
     APPLICATION_RELOAD:bool = True
 
     POSTGRESQL_HOST:str = "127.0.0.0"
@@ -33,6 +33,8 @@ class Settings(BaseSettings):
             port=self.POSTGRESQL_PORT,
             path=self.POSTGRESQL_DB
         )
+
+
 
 settings = Settings()
 
